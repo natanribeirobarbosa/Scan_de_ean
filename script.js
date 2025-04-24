@@ -58,4 +58,42 @@ function exportToExcel() {
   XLSX.writeFile(wb, "qrcodes.xlsx");
 }
 
+function startBarcodeScanner() {
+    Quagga.init({
+      inputStream: {
+        name: "Live",
+        type: "LiveStream",
+        target: document.querySelector('#preview'), // o mesmo vídeo do QR
+        constraints: {
+          facingMode: "environment"
+        },
+      },
+      decoder: {
+        readers: [
+          "code_128_reader",
+          "ean_reader",
+          "ean_8_reader",
+          "code_39_reader",
+          "upc_reader",
+          "upc_e_reader"
+        ]
+      },
+    }, function(err) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+      Quagga.start();
+    });
+  
+    Quagga.onDetected((result) => {
+      const code = result.codeResult.code;
+      if (code) {
+        addToList(code); // função que adiciona na lista, a mesma que você já usa pro QR
+        Quagga.stop(); // para leitura depois de detectar (opcional)
+      }
+    });
+  }
+  
+
 updateList();
