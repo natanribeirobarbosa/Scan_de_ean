@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leitor de QR Code</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Leitor de QR Code</h1>
+  <video id="preview"></video>
+  <button onclick="startScanner()">Ler QR Code</button>
+  <button onclick="exportToExcel()">Exportar para Excel</button>
+  <ul id="qrList"></ul>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
