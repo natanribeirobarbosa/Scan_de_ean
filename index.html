@@ -34,7 +34,7 @@
   
     const codeReader = new BrowserMultiFormatReader();
   
-    codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+    codeReader.decodeFromVideoDevice(null, 'preview', (result, err) => {
       if (result) {
         console.log('Código detectado:', result.getText());
         // Aqui você pode adicionar na lista, exportar etc.
@@ -42,7 +42,7 @@
     });
   </script>
   
-  <video id="video" width="600" height="400" style="border:1px solid #ccc;"></video>
+  <video id="preview" width="600" height="400" style="border:1px solid #ccc;"></video>
   <ul id="barcodeList"></ul>
 
   <script>
