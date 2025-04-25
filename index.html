@@ -1,23 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Leitor de QR Code</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-
+  <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
 </head>
 <body>
-  <h1>Leitor de QR Code</h1>
-  <video id="preview" autoplay playsinline width="400" height="300"></video>
 
-  <button onclick="startBarcodeScanner()">Ler Código de Barras</button>
+<video id="preview" autoplay playsinline width="400" height="300" style="border:1px solid #ccc;"></video>
+<ul id="qrList"></ul>
 
-  <button onclick="exportToExcel()">Exportar para Excel</button>
-  <ul id="qrList"></ul>
+<script>
+const qrList = document.getElementById('qrList');
+const video = document.getElementById('preview');
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="script.js"></script>
+function saveToCookie(data) {
+  let stored = getStoredQRCodes();
+  if (!stored.includes(data)) {
+    stored.push(data);
+    document.cookie = `qrcodes=${JSON.stringify(stored)};path=/`;
+    updateList();
+  }
+}
+
+function getStoredQRCodes() {
+  let match = document.cookie.match(/(?:^|; )qrcodes=([^;]*)/);
+  return match ? JSON.parse(decodeURIComponent(match[1])) : [];
+}
+
+function updateList() {
+  qrList.innerHTML = '';
+  getStoredQRCodes().forEach(code => {
+    let li = document.createElement('li');
+    li.textContent = code;
+    qrList.appendChild(li);
+  });
+}
+
+function startBarcodeScanner() {
+  Quagga.init({
+    inputStream: {
+      name: "Live",
+      type: "LiveStream",
+      target: video,
+      constraints: {
+        facingMode: "environment"
+      },
+    },
+    decoder: {
+      readers: [
+        "code_128_reader",
+        "ean_reader",
+        "ean_8_reader",
+        "code_39_reader",
+        "upc_reader",
+        "upc_e_reader"
+      ]
+    },
+  }, function(err) {
+    if (err) {
+      console.error('Erro ao iniciar Quagga:', err);
+      return;
+    }
+    Quagga.start();
+  });
+
+  Quagga.onDetected((result) => {
+    const code = result.codeResult.code;
+    if (code) {
+      saveToCookie(code);
+      Quagga.stop(); // remove se quiser leitura contínua
+    }
+  });
+}
+
+window.onload = () => {
+  startBarcodeScanner();
+  updateList();
+};
+</script>
+
 </body>
 </html>
