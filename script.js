@@ -3,29 +3,7 @@ let video = document.getElementById('preview');
 let canvas = document.createElement('canvas');
 let context = canvas.getContext('2d');
 
-function startScanner() {
-  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-    .then(stream => {
-      video.srcObject = stream;
-      video.setAttribute('playsinline', true);
-      video.play();
-      requestAnimationFrame(scan);
-    });
-}
 
-function scan() {
-  if (video.readyState === video.HAVE_ENOUGH_DATA) {
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    let code = jsQR(imageData.data, imageData.width, imageData.height);
-    if (code) {
-      saveToCookie(code.data);
-    }
-  }
-  requestAnimationFrame(scan);
-}
 
 function saveToCookie(data) {
   let stored = getStoredQRCodes();
