@@ -77,11 +77,21 @@
       type: "LiveStream",
       target: video, // A tag de vídeo
       constraints: {
-        facingMode: "environment" // Usando a câmera traseira
-      }
+    facingMode: "environment",
+    width: { ideal: 1280 },
+    height: { ideal: 720 }
+  },
+  area: { // área de leitura no centro da tela
+    top: "25%",    // reduz bordas para focar no meio
+    right: "25%",
+    left: "25%",
+    bottom: "25%"
+  }
+      
     },
     decoder: {
       readers: [
+        "code_128_reader",
         "ean_reader",
    
       ]
