@@ -58,40 +58,58 @@
       });
     }
 
-    function startScanner() {
-      Quagga.init({
-        inputStream: {
-          type: "LiveStream",
-          target: video,
-          constraints: {
-            facingMode: "environment"
-          }
-        },
-        decoder: {
-          readers: [
-            "code_128_reader",
-            "ean_reader",
-            "ean_8_reader",
-            "code_39_reader",
-            "upc_reader",
-            "upc_e_reader"
-          ]
-        }
-      }, err => {
-        if (err) {
-          console.error('Erro ao iniciar Quagga:', err);
-          return;
-        }
-        Quagga.start();
-      });
+    function startScanner() { // Log para verificar quando a inicialização começa
+  console.log("Inicializando o scanner...");
 
-      Quagga.onDetected(result => {
-        const code = result.codeResult.code;
-        if (code) {
-          saveBarcode(code);
-          Quagga.stop(); // pausa após detectar um, remova se quiser escanear contínuo
-        }
-      });
+  Quagga.init({
+    inputStream: {
+      type: "LiveStream",
+      target: video, // A tag de vídeo
+      constraints: {
+        facingMode: "environment" // Usando a câmera traseira
+      }
+    },
+    decoder: {
+      readers: [
+        "code_128_reader",
+        "ean_reader",
+        "ean_8_reader",
+        "code_39_reader",
+        "upc_reader",
+        "upc_e_reader"
+      ]
+    }
+  }, function(err) {
+    if (err) {
+      // Log se ocorrer algum erro na inicialização do Quagga
+      console.error("Erro na inicialização do Quagga:", err);
+      return;
+    }
+    
+    console.log("Quagga iniciado com sucesso");
+    Quagga.start(); // Inicia a leitura
+  });
+
+  // Log para detectar quando a câmera está sendo acessada
+  Quagga.onDetected((result) => {
+    console.log("Código de barras detectado:", result);
+
+    const code = result.codeResult.code;
+    if (code) {
+      saveBarcode(code); // Salva o código no cookie
+      console.log("Código salvo:", code);
+      Quagga.stop(); // Para o scanner (se não quiser ler continuamente)
+    }
+  });
+}
+
+// Verificando se o vídeo está sendo exibido corretamente
+video.onplaying = () => {
+  console.log("Vídeo está sendo exibido corretamente.");
+};
+
+video.onerror = (e) => {
+  console.error("Erro ao carregar o vídeo:", e);
     }
 
     window.onload = () => {
