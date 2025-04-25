@@ -8,6 +8,7 @@
     #preview {
       width: 100%;
       max-width: 480px;
+      height: 80vh;
       border: 2px solid #333;
       margin: 20px auto;
       display: block;
@@ -28,7 +29,7 @@
 </head>
 <body>
 
-  <video id="preview" width="640" height="480" autoplay></video>
+  <video id="preview" autoplay></video>
   <ul id="barcodeList"></ul>
 
   <script>
@@ -86,8 +87,7 @@
     },
     decoder: {
       readers: [
-        "code_128_reader",
-        "ean_reader",
+       "ean_reader",
    
       ]
     }
