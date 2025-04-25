@@ -28,12 +28,23 @@
 </head>
 <body>
 
-  <video id="preview" autoplay playsinline></video>
+  <video id="preview" width="640" height="480" autoplay></video>
   <ul id="barcodeList"></ul>
 
   <script>
     const barcodeList = document.getElementById('barcodeList');
-    const video = document.getElementById('preview');
+    let video = document.getElementById('preview');
+
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(function(stream) {
+        // Atribui o fluxo de vídeo ao elemento de vídeo
+        video.srcObject = stream;
+        video.play(); // Inicia a reprodução do vídeo
+      })
+      .catch(function(error) {
+        console.error("Erro ao acessar a câmera: ", error);
+      });
+
 
     function saveBarcode(code) {
       const savedCodes = getSavedBarcodes();
