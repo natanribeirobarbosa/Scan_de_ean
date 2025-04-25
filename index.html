@@ -8,7 +8,7 @@
     #preview {
       width: 100%;
       max-width: 480px;
-      height: 80vh;
+
       border: 2px solid #333;
       margin: 20px auto;
       display: block;
@@ -29,7 +29,20 @@
 </head>
 <body>
 
-  <video id="preview" autoplay></video>
+  <script type="module">
+    import { BrowserMultiFormatReader } from 'https://cdn.jsdelivr.net/npm/@zxing/browser@latest';
+  
+    const codeReader = new BrowserMultiFormatReader();
+  
+    codeReader.decodeFromVideoDevice(null, 'video', (result, err) => {
+      if (result) {
+        console.log('Código detectado:', result.getText());
+        // Aqui você pode adicionar na lista, exportar etc.
+      }
+    });
+  </script>
+  
+  <video id="video" width="600" height="400" style="border:1px solid #ccc;"></video>
   <ul id="barcodeList"></ul>
 
   <script>
