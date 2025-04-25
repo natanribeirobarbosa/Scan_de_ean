@@ -1,82 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
-  <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Leitor de Código de Barras</title>
+  <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.min.js"></script>
+  <style>
+    #preview {
+      width: 100%;
+      max-width: 480px;
+      border: 2px solid #333;
+      margin: 20px auto;
+      display: block;
+    }
+    ul {
+      max-width: 480px;
+      margin: auto;
+      padding: 0;
+      list-style: none;
+    }
+    li {
+      background: #eee;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
 
-<video id="preview" autoplay playsinline width="400" height="300" style="border:1px solid #ccc;"></video>
-<ul id="qrList"></ul>
+  <video id="preview" autoplay playsinline></video>
+  <ul id="barcodeList"></ul>
 
-<script>
-const qrList = document.getElementById('qrList');
-const video = document.getElementById('preview');
+  <script>
+    const barcodeList = document.getElementById('barcodeList');
+    const video = document.getElementById('preview');
 
-function saveToCookie(data) {
-  let stored = getStoredQRCodes();
-  if (!stored.includes(data)) {
-    stored.push(data);
-    document.cookie = `qrcodes=${JSON.stringify(stored)};path=/`;
-    updateList();
-  }
-}
-
-function getStoredQRCodes() {
-  let match = document.cookie.match(/(?:^|; )qrcodes=([^;]*)/);
-  return match ? JSON.parse(decodeURIComponent(match[1])) : [];
-}
-
-function updateList() {
-  qrList.innerHTML = '';
-  getStoredQRCodes().forEach(code => {
-    let li = document.createElement('li');
-    li.textContent = code;
-    qrList.appendChild(li);
-  });
-}
-
-function startBarcodeScanner() {
-  Quagga.init({
-    inputStream: {
-      name: "Live",
-      type: "LiveStream",
-      target: video,
-      constraints: {
-        facingMode: "environment"
-      },
-    },
-    decoder: {
-      readers: [
-        "code_128_reader",
-        "ean_reader",
-        "ean_8_reader",
-        "code_39_reader",
-        "upc_reader",
-        "upc_e_reader"
-      ]
-    },
-  }, function(err) {
-    if (err) {
-      console.error('Erro ao iniciar Quagga:', err);
-      return;
+    function saveBarcode(code) {
+      const savedCodes = getSavedBarcodes();
+      if (!savedCodes.includes(code)) {
+        savedCodes.push(code);
+        document.cookie = `barcodes=${JSON.stringify(savedCodes)};path=/`;
+        updateList();
+      }
     }
-    Quagga.start();
-  });
 
-  Quagga.onDetected((result) => {
-    const code = result.codeResult.code;
-    if (code) {
-      saveToCookie(code);
-      Quagga.stop(); // remove se quiser leitura contínua
+    function getSavedBarcodes() {
+      const match = document.cookie.match(/(?:^|; )barcodes=([^;]*)/);
+      return match ? JSON.parse(decodeURIComponent(match[1])) : [];
     }
-  });
-}
 
-window.onload = () => {
-  startBarcodeScanner();
-  updateList();
-};
-</script>
+    function updateList() {
+      barcodeList.innerHTML = '';
+      getSavedBarcodes().forEach(code => {
+        const li = document.createElement('li');
+        li.textContent = code;
+        barcodeList.appendChild(li);
+      });
+    }
 
+    function startScanner() {
+      Quagga.init({
+        inputStream: {
+          type: "LiveStream",
+          target: video,
+          constraints: {
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: [
+            "code_128_reader",
+            "ean_reader",
+            "ean_8_reader",
+            "code_39_reader",
+            "upc_reader",
+            "upc_e_reader"
+          ]
+        }
+      }, err => {
+        if (err) {
+          console.error('Erro ao iniciar Quagga:', err);
+          return;
+        }
+        Quagga.start();
+      });
+
+      Quagga.onDetected(result => {
+        const code = result.codeResult.code;
+        if (code) {
+          saveBarcode(code);
+          Quagga.stop(); // pausa após detectar um, remova se quiser escanear contínuo
+        }
+      });
+    }
+
+    window.onload = () => {
+      updateList();
+      startScanner();
+    };
+  </script>
 </body>
 </html>
